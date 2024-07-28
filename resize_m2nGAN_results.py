@@ -26,10 +26,10 @@ def check_folder(file_name):
     if not os.path.isdir(dir_name):
         os.makedirs(dir_name)
 
-prediction_root=r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Evaluation/Pred'
-saving_resized_prediction_root=r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Evaluation/pred'
-max_tps={'181210plc1p2':210,'200326plc1p3':220,'200326plc1p4':195}
-evaluation_embryos_and_sizes = {'181210plc1p2':(256,356,160), '200326plc1p3':(256,356,214), '200326plc1p4':(256,356,214)}
+prediction_root=r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Running/Pred'
+saving_resized_prediction_root=r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Running/prediction'
+max_tps={'200710hmr1plc1p1':100,'200710hmr1plc1p2':100,'200710hmr1plc1p3':100}
+evaluation_embryos_and_sizes = {'200710hmr1plc1p1':(256,356,158), '200710hmr1plc1p2':(256,356,158), '200710hmr1plc1p3':(256,356,158)}
 
 for embryo_name,this_embryo_resolution in evaluation_embryos_and_sizes.items():
     for tp_this in range(1,max_tps[embryo_name]+1):

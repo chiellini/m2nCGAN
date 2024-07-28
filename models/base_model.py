@@ -118,7 +118,7 @@ class BaseModel():
         for name in self.model_names:
             if isinstance(name, str):
                 #load_filename = '%s_net_%s.pth' % (which_epoch, name)# for continueing
-                load_filename = 'latest_net_G_A.pth' # for test
+                load_filename = 'latest_net_G_A_pre.pth' # for test
                 load_path = os.path.join(self.save_dir, load_filename)
                 net = getattr(self, 'net' + name)
                 if isinstance(net, torch.nn.DataParallel):

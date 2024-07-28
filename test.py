@@ -212,8 +212,8 @@ if __name__ == '__main__':
     opt = TestOptions().parse()
     model = create_model(opt)
     model.setup(opt)
-    images_path = r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Evaluation/images'
-    output_path = r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Evaluation/Pred'
+    images_path = r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Running/images'
+    output_path = r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Running/Pred'
     for image in os.listdir(images_path):
         image_path = os.path.join(images_path, image)
         print('processing', image_path)

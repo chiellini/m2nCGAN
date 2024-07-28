@@ -1,6 +1,9 @@
 # import glob
 import os.path
+import math
+import time
 
+import numpy as np
 # import numpy as np
 from skimage.morphology import ball
 from scipy import ndimage
@@ -44,23 +47,35 @@ def generating_center_nucleus(para):
     for cell_this_one in cell_list:
         # mask_this=(seg_cell_arr == cell_this_one)
         # volume_size=mask_this.sum()
-        # if volume_size<15:
-        #     continue
+
         # radius_this=int((volume_size*3/(4*3.14))**(1/3)+1)
         # iteration_this=radius_this-(6-int(int(tp)/100))
         # mask_this=ndimage.binary_erosion(mask_this,iterations=iteration_this)
         # new_memb_center[mask_this]=1
-        this_cell_pos_list = np.where(seg_cell_arr == cell_this_one)
+        mask_this = (seg_cell_arr == cell_this_one)
+        this_cell_pos_list = np.where(mask_this)
         center_pos = np.mean(this_cell_pos_list, axis=1)
+        volume_size=mask_this.sum()
+        radius_this=int((volume_size*3/(4*3.14))**(1/3)+1)
+        if radius_this< (16-math.log2(int(tp)+1)*3/2):
+            continue
+        temp_array=np.full(seg_cell_arr.shape, False)
+        temp_array[int(center_pos[0]), int(center_pos[1]), int(center_pos[2])]=True
+        # nucleus_maker_footprint = ball(radius_this//2)
+        mask_this = ndimage.binary_dilation(temp_array, iterations=radius_this//2)
+        new_memb_center[mask_this]=1
         # center_x = this_cell_pos_list[0][center_idx]
         # center_y = this_cell_pos_list[1][center_idx]
         # center_z = this_cell_pos_list[2][center_idx]
-        new_memb_center[int(center_pos[0]), int(center_pos[1]), int(center_pos[2])] = 1
+        # new_memb_center[int(center_pos[0]), int(center_pos[1]), int(center_pos[2])] = 1
 
     if is_ambiguous_here:
-        nucleus_maker_footprint = ball(5 - int(int(tp) / 100))
-        saving_nii = ndimage.grey_dilation(new_memb_center, footprint=nucleus_maker_footprint)
+        nucleus_maker_footprint = ball(int(16-math.log2(int(tp)+1)*2))
+        start=time.time()
+        saving_nii = ndimage.grey_opening(new_memb_center, footprint=nucleus_maker_footprint)
+        print(time.time()-start)
         image_path = os.path.join(saving_cell_path, '{}_{}_pseudoRawNuc.nii'.format(embryo_name,tp))
+        # print(embryo_name,tp, len(np.unique(new_memb_center)))
         nib_save(saving_nii.astype(np.float32), image_path)
 
         # fuzzy_memb_center = contour_distance(saving_nii, 3)
@@ -103,7 +118,7 @@ def generate_input_for_m2nGAN_training_and_testing():
         parameters = []
 
         for niigz_this in seg_cell_this:
-            parameters.append([niigz_this, saving_cell_path])
+            parameters.append([niigz_this, saving_cell_path,True])
 
         mp_cpu_num = min(len(parameters), int(mp.cpu_count() - 10))
         print('all cpu process is ', mp.cpu_count(), 'we created ', mp_cpu_num)
@@ -118,12 +133,13 @@ def generate_input_for_m2nGAN_training_and_testing():
 
 def generate_input_for_m2nGAN_timelapse_evaluation():
     # training_embryos=['191108plc1p1','200109plc1p1','200113plc1p2','200113plc1p3','200322plc1p2','200323plc1p1']
-    evaluation_embryos = ['181210plc1p2', '200326plc1p3', '200326plc1p4']
+    # evaluation_embryos = ['181210plc1p2', '200326plc1p3', '200326plc1p4']
     # evaluation_embryos = ['200326plc1p4']
+    evaluation_embryos = ['200710hmr1plc1p1', '200710hmr1plc1p2', '200710hmr1plc1p3']
 
 
     seg_cell_path = r'/home/cimda/INNERDisk1/ZELIN_MEMB_DATA/RunningDataset_4D_SWIN'
-    saving_cell_path = r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Evaluation/images'
+    saving_cell_path = r'/home/cimda/zelinli/NucGAN/GAN/Data_folder/Running/images'
 
     for embryo_name in evaluation_embryos:
         seg_cell_this = glob.glob(os.path.join(seg_cell_path, embryo_name, 'SegCell', '*.nii.gz'))
@@ -132,7 +148,7 @@ def generate_input_for_m2nGAN_timelapse_evaluation():
         for niigz_this in seg_cell_this:
             parameters.append([niigz_this, saving_cell_path, True])
 
-        mp_cpu_num = min(len(parameters), int(mp.cpu_count() - 10))
+        mp_cpu_num = min(len(parameters), int(mp.cpu_count() - 20))
         print('all cpu process is ', mp.cpu_count(), 'we created ', mp_cpu_num)
         mpPool = mp.Pool(mp_cpu_num)
         for _ in tqdm(mpPool.imap_unordered(generating_center_nucleus, parameters), total=len(parameters),
