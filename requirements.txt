@@ -1,13 +1,34 @@
-pillow
-pandas
-pydicom
-nibabel
-tqdm
-torchvision>=0.2.1
-dominate>=2.3.1
-visdom>=0.1.8.
-simpleITK==1.2.4
-torchsummary
-torchsummaryX
-scikit-image
-scikit-learn
+# Runtime tested with CPython 3.7 (64-bit). Keep these pins together.
+# For CUDA, install the matching torch==1.10.2 / torchvision==0.11.3 build
+# from the PyTorch archive before installing the rest of this file.
+
+numpy==1.21.6
+scipy==1.7.3
+pandas==1.3.5
+Pillow==8.4.0
+imageio==2.19.5
+matplotlib==3.5.3
+seaborn==0.11.2
+
+# NIfTI / medical-image I/O
+nibabel==3.2.2
+pydicom==2.3.1
+SimpleITK==1.2.4
+
+# Critical for 3dniigz_to_2dtif.py: interpolation and ImageJ TIFF output.
+scikit-image==0.18.3
+tifffile==2021.11.2
+
+# Model runtime. torch and torchvision must remain a matched pair.
+torch==1.10.2
+torchvision==0.11.3
+monai==0.9.1
+torchsummary==1.5.1
+torchsummaryX==1.3.0
+
+# Training, visualization, and analysis utilities
+tqdm==4.64.1
+dominate==2.6.0
+visdom==0.2.4
+scikit-learn==0.24.2
+treelib==1.6.1
